@@ -1,27 +1,36 @@
-"""GPU Monitoring Module
-
-This module retrieves GPU statistics from NVIDIA and AMD graphics cards, including GPU load,
-memory usage, and temperature. It utilizes multiple libraries (WMI, ADLManager, and GPUtil)
-to gather comprehensive GPU data, with fallback mechanisms for handling unavailable metrics.
-
-Functions:
-- get_gpu_stats(): Returns a list of dictionaries containing GPU information for all detected GPUs
+"""
+FILE DESCRIPTION:
+This module is responsible for detecting and monitoring dedicated Graphics 
+Processing Units (GPUs). It gathers real-time data on GPU utilization, 
+core temperature, and Video RAM (VRAM) usage for both NVIDIA and AMD hardware.
 """
 
-import GPUtil
-from pyadl import ADLManager 
-import wmi
+"""
+LIBRARY DESCRIPTIONS:
+- GPUtil: A specialized library for retrieving NVIDIA GPU status.
+- pyadl: The Python AMD Display Library, used for accessing AMD GPU metrics.
+- wmi: Windows Management Instrumentation, used to identify hardware names 
+       and base specifications from the system registry.
+"""
+
+import GPUtil # Interface for NVIDIA GPU monitoring
+from pyadl import ADLManager # Interface for AMD GPU monitoring
+import wmi # Interface for Windows system hardware identification
 
 def get_gpu_stats():
+    # Primary dictionary to store and sync data from multiple hardware sources
     master_gpus = {}
 
+    # Identify dedicated GPUs using Windows Management Instrumentation (WMI)
     try:
         w = wmi.WMI()
         for gpu in w.Win32_VideoController():
             name = gpu.Name
+            # Skip integrated Intel graphics to focus on dedicated performance
             if "Intel" in name: 
                 continue
             
+            # Convert VRAM from bytes to Megabytes (MB)
             vram_mb = abs(int(int(gpu.AdapterRAM or 0) / (1024**2)))
             
             master_gpus[name] = {
@@ -34,6 +43,7 @@ def get_gpu_stats():
     except:
         pass
 
+    # Gather data for AMD GPUs using the ADL library
     try:
         devices = ADLManager.getInstance().getDevices()
         for dev in devices:
@@ -45,6 +55,7 @@ def get_gpu_stats():
     except:
         pass
 
+    # Gather data for NVIDIA GPUs using GPUtil
     try:
         gpus = GPUtil.getGPUs()
         for gpu in gpus:
@@ -56,4 +67,5 @@ def get_gpu_stats():
     except:
         pass
 
+    # Convert the dictionary of GPUs into a list for the dashboard display
     return list(master_gpus.values())

@@ -1,17 +1,26 @@
-"""Dashboard Design and Color Configuration Module
-
-This module defines the visual presentation and layout of the System Resource Monitor dashboard.
-It provides ANSI color definitions for terminal output and the main dashboard rendering function
-that displays system resource information in an organized, color-coded format.
-
-Features:
-- Standard and bright ANSI color definitions
-- Dashboard layout with organized sections for CPU, GPU, Memory, and Disk information
-- Screen clearing functionality compatible with Windows and Unix systems
+"""
+FILE DESCRIPTION:
+This script handles the User Interface (UI) design for the System Monitor. 
+It defines how the hardware data is visually structured using ASCII 
+border characters and organized into clear, color-coded sections.
 """
 
-import os
+"""
+COLOR PALETTE AVAILABILITY:
+This module contains a full suite of standard and bright ANSI color codes.
+These variables can be used to customize the text color of any dashboard 
+element by wrapping the string in the desired color variable.
+"""
 
+"""
+LIBRARY DESCRIPTIONS:
+- os: Used for initializing the terminal's color support and 
+      clearing the screen to create a static dashboard effect.
+"""
+
+import os # Library used for clearing the screen and enabling ANSI colors
+
+# Initialize terminal for ANSI color support
 os.system("")
 
 # Standard Colors
@@ -37,29 +46,31 @@ B_WHITE   = '\033[97m'
 RESET     = '\033[0m'
 
 def clear_screen():
+    # Detects the operating system and runs the correct command to clear the terminal
     os.system('cls' if os.name == 'nt' else 'clear')
 
 def draw_dashboard(cpu, gpus, mem, disks):
+    # Main function to render the UI components with live data
     clear_screen()
     
-    W = 50 
+    W = 50 # Fixed width used for horizontal alignment of the ASCII boxes
 
     # Header Box (Cyan)
     print(f"{B_CYAN}┌──────────────────────────────────────────────────┐")
     print(f"│             SYSTEM RESOURCE MONITOR              │")
     print(f"└──────────────────────────────────────────────────┘{RESET}")
     
-    # Stop Info (Red, No punctuation at the end as requested)
+    # Stop Info (Red text positioned directly below the header)
     print(f"{B_RED}               Press Ctrl+C to Stop               {RESET}")
 
-    # CPU Section
+    # CPU Section (Blue) - Shows processor name and real-time load/temp
     print(f"\n{B_BLUE}┌── CPU {'─' * 43}┐")
     print(f"│{f' Name: {cpu['name'][:40]}':<{W}}│")
     print(f"│{f' Load: {cpu['load']}%':<{W}}│")
     print(f"│{f' Temp: {cpu['temp']}C':<{W}}│")
     print(f"└──────────────────────────────────────────────────┘{RESET}")
 
-    # GPU Section
+    # GPU Section (Magenta) - Loops through each available graphics card
     for gpu in gpus:
         print(f"\n{B_MAGENTA}┌── GPU {'─' * 43}┐")
         print(f"│{f' Name: {gpu['name']}':<{W}}│")
@@ -68,16 +79,15 @@ def draw_dashboard(cpu, gpus, mem, disks):
         print(f"│{f' VRAM: {gpu['memory_used']} / {gpu['memory_total']}MB':<{W}}│")
         print(f"└──────────────────────────────────────────────────┘{RESET}")
 
-    # Memory Section
+    # Memory Section (Green) - Displays RAM percentage and total GB stats
     print(f"\n{B_GREEN}┌── MEMORY {'─' * 40}┐")
     print(f"│{f' Used: {mem['percent']}%':<{W}}│")
     print(f"│{f' Stats: {mem['used']}GB / {mem['total']}GB':<{W}}│")
     print(f"└──────────────────────────────────────────────────┘{RESET}")
 
-    # Storage Section
+    # Storage Section (Yellow) - Displays disk device names and usage percentages
     print(f"\n{B_YELLOW}┌── STORAGE {'─' * 39}┐")
     for disk in disks:
         d_text = f" {disk['device']} ({disk['mount']}): {disk['percent']}% Used"
         print(f"│{f'{d_text}':<{W}}│")
     print(f"└──────────────────────────────────────────────────┘{RESET}")
-
