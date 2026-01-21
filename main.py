@@ -7,6 +7,14 @@ manages the exit process, and ensures errors don't crash the program.
 """
 
 """
+PROJECT MODULE IMPORTS:
+- design: Handles the visual rendering of the dashboard and color codes.
+- Monitors: A package containing specialized scripts for each hardware 
+  component (CPU, GPU, Memory, Disk). This separates the data collection 
+  logic from the main display loop.
+"""
+
+"""
 LIBRARY DESCRIPTIONS:
 - time: Provides functions for handling pauses (sleep) so the script doesn't overload the CPU.
 - sys: Allows the script to interact with the Python runtime (used here for clean exits).
