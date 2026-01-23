@@ -1,59 +1,69 @@
 """
 FILE DESCRIPTION:
-This is the main execution engine of the System Monitor. 
-It acts as the 'brain' that connects the data collectors (Monitors) 
-to the visual display (Design). It handles the timing loop, 
-manages the exit process, and ensures errors don't crash the program.
+This is the main execution engine of the System Monitor. It manages 
+the synchronization between the specialized hardware monitors and 
+the dashboard UI, specifically handling the separation of fixed 
+disk data (Yellow) and USB hot-plug alerts (Orange).
 """
 
 """
 PROJECT MODULE IMPORTS:
-- design: Handles the visual rendering of the dashboard and color codes.
-- Monitors: A package containing specialized scripts for each hardware 
-  component (CPU, GPU, Memory, Disk). This separates the data collection 
-  logic from the main display loop.
+- design: Renders the ASCII dashboard with Yellow and Orange sections.
+- Monitors: A package containing the CPU, GPU, Memory, Disk, and USB 
+  collection logic.
 """
 
 """
 LIBRARY DESCRIPTIONS:
-- time: Provides functions for handling pauses (sleep) so the script doesn't overload the CPU.
-- sys: Allows the script to interact with the Python runtime (used here for clean exits).
-- os: Used for interacting with the operating system (clearing the terminal).
+- time: Handles the 1-second refresh rate of the dashboard.
+- sys: Manages the clean exit of the Python runtime.
 """
 
-import time # Library for controlling loop speed and delays
-import sys  # Library for system-specific parameters and functions
-import os   # Library for OS-dependent functionality
+import time # Library for controlling loop speed
+import sys  # Library for clean system exits
 
 # Project modules for UI and Data Collection
 from design import draw_dashboard, B_RED, RESET
-from Monitors import cpu_monitor, gpu_monitor, memory_monitor, disk_monitor
+from Monitors import cpu_monitor, gpu_monitor, memory_monitor, disk_monitor, usb_monitor
 
 def start():
-    # Main execution function that gathers hardware data and updates the display.
+    # Initialize the USB state and the notification log before starting the loop
+    last_usb_state = usb_monitor.get_physical_disks()
+    usb_log = ["No recent activity"] # Default message for the Orange UI box
+
     try:
         while True:
-            # Gathers real-time statistics from each hardware component
+            # Gathers real-time statistics (Internal Disks are filtered in disk_monitor)
             cpu_data = cpu_monitor.get_cpu_stats()       
             gpu_data = gpu_monitor.get_gpu_stats()       
             mem_data = memory_monitor.get_memory_stats() 
             disk_data = disk_monitor.get_disk_stats()    
 
-            # Updates the terminal UI using the data collected above
-            draw_dashboard(cpu_data, gpu_data, mem_data, disk_data)
+            # Polling for USB changes to populate the Orange alert box
+            current_usb, newly_added, newly_removed = usb_monitor.check_for_new_usb(last_usb_state)
+            
+            if newly_added:
+                if "No recent activity" in usb_log: usb_log.clear()
+                usb_log.append(f"DETECTED: {list(newly_added)[0]}")
+            
+            if newly_removed:
+                if "No recent activity" in usb_log: usb_log.clear()
+                usb_log.append(f"REMOVED: {list(newly_removed)[0]}")
 
-            # Pause for 1 second before next update
+            # Keep only the 3 most recent hardware events
+            usb_log = usb_log[-3:]
+            last_usb_state = current_usb
+
+            # Pass all data to the dashboard, including the separate USB log
+            draw_dashboard(cpu_data, gpu_data, mem_data, disk_data, usb_log)
+
+            # Wait 1 second before the next UI refresh
             time.sleep(1)
 
     except KeyboardInterrupt:
-        # Catch Ctrl+C and print red exit message
+        # Professional exit message on Ctrl+C
         print(f"\n{B_RED}Monitoring Stopped!{RESET}")
         sys.exit(0)
-        
-    except Exception as e:
-        # Catches any unexpected errors and displays them before pausing
-        print(f"System Error: {e}")
-        time.sleep(2)
 
 if __name__ == "__main__":
     start()

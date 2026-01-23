@@ -1,40 +1,40 @@
 """
 FILE DESCRIPTION:
-This module monitors all disk partitions and storage devices on the system. 
-It identifies active drives, their mount points (e.g., C:\), and tracks 
-how much space is currently occupied versus the total capacity.
+This module monitors fixed internal storage devices. It is specifically 
+configured to filter out removable media (USBs) to ensure that 
+long-term storage data remains separated from hot-plug events.
 """
 
 """
 LIBRARY DESCRIPTIONS:
-- psutil: (Process and System Utilities) A library used here to query 
-          physical disk partitions and calculate storage usage data.
+- psutil: Used to query system disk partitions and usage. We use the 
+          'opts' attribute here to identify and skip removable drives.
 """
 
-import psutil # Library for retrieving hardware and disk utilization stats
+import psutil # Library for hardware and storage utilization stats
 
 def get_disk_stats():
-    # List to store the information for every detected drive
+    # List to store information for fixed internal drives only
     disks = []
     
-    # Iterate through all hardware partitions recognized by the OS
+    # Iterate through partitions and filter for fixed hardware
     for partition in psutil.disk_partitions():
-        # Only process partitions that have a valid file system (skips empty drives)
-        if partition.fstype:
+        # FILTER: Only include partitions with a filesystem that ARE NOT 'removable'
+        if partition.fstype and 'removable' not in partition.opts:
             try:
-                # Retrieve specific usage data for the current mount point
+                # Retrieve usage data for the internal mount point
                 usage = psutil.disk_usage(partition.mountpoint)
                 
                 disks.append({
                     "device": partition.device,
                     "mount": partition.mountpoint,
-                    # Convert bytes to Gigabytes (GB) for readability
+                    # Convert bytes to Gigabytes (GB)
                     "total": round(usage.total / (1024**3), 1),
                     "used": round(usage.used / (1024**3), 1),
                     "percent": usage.percent
                 })
             except:
-                # Skip drives that might be locked or inaccessible (like some CD-ROMs)
+                # Skip drives that are locked by the system
                 continue
                 
     return disks

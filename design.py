@@ -27,7 +27,8 @@ os.system("")
 BLACK     = '\033[30m'
 RED       = '\033[31m'
 GREEN     = '\033[32m'
-YELLOW    = '\033[33m'
+YELLOW    = '\033[33m' 
+ORANGE    = '\033[38;5;208m' # Dedicated Orange for USB events
 BLUE      = '\033[34m'
 MAGENTA   = '\033[35m'
 CYAN      = '\033[36m'
@@ -49,7 +50,7 @@ def clear_screen():
     # Detects the operating system and runs the correct command to clear the terminal
     os.system('cls' if os.name == 'nt' else 'clear')
 
-def draw_dashboard(cpu, gpus, mem, disks):
+def draw_dashboard(cpu, gpus, mem, disks, usb_events=None):
     # Main function to render the UI components with live data
     clear_screen()
     
@@ -60,17 +61,17 @@ def draw_dashboard(cpu, gpus, mem, disks):
     print(f"│             SYSTEM RESOURCE MONITOR              │")
     print(f"└──────────────────────────────────────────────────┘{RESET}")
     
-    # Stop Info (Red text positioned directly below the header)
+    # Stop Info (Red)
     print(f"{B_RED}               Press Ctrl+C to Stop               {RESET}")
 
-    # CPU Section (Blue) - Shows processor name and real-time load/temp
+    # CPU Section (Blue)
     print(f"\n{B_BLUE}┌── CPU {'─' * 43}┐")
     print(f"│{f' Name: {cpu['name'][:40]}':<{W}}│")
     print(f"│{f' Load: {cpu['load']}%':<{W}}│")
     print(f"│{f' Temp: {cpu['temp']}C':<{W}}│")
     print(f"└──────────────────────────────────────────────────┘{RESET}")
 
-    # GPU Section (Magenta) - Loops through each available graphics card
+    # GPU Section (Magenta)
     for gpu in gpus:
         print(f"\n{B_MAGENTA}┌── GPU {'─' * 43}┐")
         print(f"│{f' Name: {gpu['name']}':<{W}}│")
@@ -79,15 +80,22 @@ def draw_dashboard(cpu, gpus, mem, disks):
         print(f"│{f' VRAM: {gpu['memory_used']} / {gpu['memory_total']}MB':<{W}}│")
         print(f"└──────────────────────────────────────────────────┘{RESET}")
 
-    # Memory Section (Green) - Displays RAM percentage and total GB stats
+    # Memory Section (Green)
     print(f"\n{B_GREEN}┌── MEMORY {'─' * 40}┐")
     print(f"│{f' Used: {mem['percent']}%':<{W}}│")
     print(f"│{f' Stats: {mem['used']}GB / {mem['total']}GB':<{W}}│")
     print(f"└──────────────────────────────────────────────────┘{RESET}")
 
-    # Storage Section (Yellow) - Displays disk device names and usage percentages
-    print(f"\n{B_YELLOW}┌── STORAGE {'─' * 39}┐")
+    # Storage Section (Yellow)
+    print(f"\n{YELLOW}┌── STORAGE {'─' * 39}┐")
     for disk in disks:
         d_text = f" {disk['device']} ({disk['mount']}): {disk['percent']}% Used"
         print(f"│{f'{d_text}':<{W}}│")
     print(f"└──────────────────────────────────────────────────┘{RESET}")
+
+    # USB Notification Section (Orange)
+    if usb_events:
+        print(f"\n{ORANGE}┌── USB LOG {'─' * 39}┐")
+        for event in usb_events:
+            print(f"│{f' {event}':<{W}}│")
+        print(f"└──────────────────────────────────────────────────┘{RESET}")
