@@ -28,7 +28,7 @@ from Monitors import cpu_monitor, gpu_monitor, memory_monitor, disk_monitor, usb
 
 def start():
     # Initialize the USB state and the notification log before starting the loop
-    last_usb_state = usb_monitor.get_physical_disks()
+    last_usb_state = usb_monitor.get_usb_devices()
     usb_log = ["No recent activity"] # Default message for the Orange UI box
 
     try:
@@ -40,7 +40,7 @@ def start():
             disk_data = disk_monitor.get_disk_stats()    
 
             # Polling for USB changes to populate the Orange alert box
-            current_usb, newly_added, newly_removed = usb_monitor.check_for_new_usb(last_usb_state)
+            current_usb, newly_added, newly_removed = usb_monitor.check_usb_updates(last_usb_state)
             
             if newly_added:
                 if "No recent activity" in usb_log: usb_log.clear()

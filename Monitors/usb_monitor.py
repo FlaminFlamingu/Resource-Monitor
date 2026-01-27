@@ -13,23 +13,33 @@ LIBRARY DESCRIPTIONS:
 
 import wmi # Library for querying physical hardware properties
 
-def get_physical_disks():
-    # Returns a set of unique serial numbers or device IDs currently plugged in
+def get_usb_devices():
+    # Queries the system for all currently connected USB Disk Drives.
+    # Returns a dictionary mapping SerialNumber to Model Name.
     try:
         c = wmi.WMI()
-        # We look specifically for USB interface types
-        return {d.SerialNumber.strip() for d in c.Win32_DiskDrive() if d.InterfaceType == "USB"}
-    except:
-        return set()
+        # We create a dictionary so we can show the USER-FRIENDLY name (Model)
+        # while using the SerialNumber as the unique ID.
+        return {d.SerialNumber.strip(): d.Model for d in c.Win32_DiskDrive() if d.InterfaceType == "USB"}
+    except Exception:
+        return {}
 
-def check_for_new_usb(previous_snapshot):
-    # Compares the new list of USBs to the old one
-    current_snapshot = get_physical_disks()
+def check_usb_updates(previous_snapshot):
+    """
+    Compares the current system state against the previous snapshot.
+    Returns:
+    - current_snapshot: The new list of devices
+    - added: Names of newly connected drives
+    - removed: Names of disconnected drives
+    """
+    current_snapshot = get_usb_devices()
     
-    # Identify new additions
-    new_devices = current_snapshot - previous_snapshot
+    # Set math to find the difference in Serial Numbers
+    added_serials = set(current_snapshot.keys()) - set(previous_snapshot.keys())
+    removed_serials = set(previous_snapshot.keys()) - set(current_snapshot.keys())
     
-    # Identify removals
-    removed_devices = previous_snapshot - current_snapshot
+    # Get the human-readable names for the changes
+    added_names = [current_snapshot[s] for s in added_serials]
+    removed_names = [previous_snapshot[s] for s in removed_serials]
     
-    return current_snapshot, new_devices, removed_devices
+    return current_snapshot, added_names, removed_names
