@@ -58,6 +58,8 @@ memory_monitor.py
 disk_monitor.py
 
 🚦 How to Use
+[!IMPORTANT] Administrative Privileges: For the best possible execution and full hardware access (specifically for CPU Temperature sensors), you must run your terminal as an Administrator. Without elevation, some thermal data may return as "N/A".
+
 Step 1: Open the Command Interface
 Open your terminal of choice. On Windows, press the Win key, type cmd, and press Enter. For a more modern experience, you may also use PowerShell or Windows Terminal.
 
@@ -76,13 +78,13 @@ The dashboard will now initialize. The interface will refresh in real-time. To s
 🗺️ Roadmap
 I am actively building toward several major milestones:
 
-[ ] Automated Setup: A Python or Batch script to handle all library installations.
+[x] USB Detector: Initial integration for hardware polling (Beta).
 
-[ ] Application Conversion: Compiling the script into a standalone executable (.exe) for non-Python users.
+[ ] Fine Adjustments: Improving USB detection speed and drive-letter mapping.
 
-[ ] Individual Process Tracking: The ability to check resource usage of specific apps before or while they run.
+[ ] Automated Setup: Script to handle all library installations.
 
-[ ] Web Interface: A browser-based version of the dashboard for remote monitoring across a network.
+[ ] Application Conversion: Compiling into a standalone .exe.
 
 ⚖️ License & Contribution
 This project is shared publicly for inspiration and educational purposes. You are encouraged to study the code and use the logic to build your own unique monitors.
