@@ -39,7 +39,7 @@ The goal of this project is to provide a "clean-view" resource output. Unlike he
 Currently, this project runs as a Python script. You will need to install the following dependencies:
 
 ```bash
-pip install psutil GPUtil pyadl wmi py-cpuinfo
+pip install | wmi | psutil | GPUtil | pyadl | wmi | py-cpuinfo |
 Note: A setup script is currently in development to automate this process for a one-click installation experience.
 
 📂 Project Structure
