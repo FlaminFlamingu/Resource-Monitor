@@ -9,12 +9,13 @@ systems where specific drivers (like AMD ADL) are missing.
 
 """
 LIBRARY DESCRIPTIONS:
-- GPUtil: A specialized library for retrieving NVIDIA GPU status.
+- GPUtil: Used for NVIDIA cards. Note: Requires 'setuptools' on Python 3.12+.
 - pyadl: The Python AMD Display Library, used for accessing AMD GPU metrics.
 - wmi: Windows Management Instrumentation, used to identify hardware names 
         and base specifications from the system registry.
 """
 
+# BACKGROUND DEPENDENCY: setuptools (Required for GPUtil compatibility on Python 3.12+)
 import GPUtil  # Interface for NVIDIA GPU monitoring
 import wmi     # Interface for Windows system hardware identification
 
