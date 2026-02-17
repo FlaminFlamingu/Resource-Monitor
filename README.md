@@ -1,84 +1,138 @@
-# FlaminFlamingu Resource-Monitor
+# 🔥 FlaminFlamingu Resource-Monitor
 
-A lightweight, terminal-based system monitoring tool designed for clarity and speed. Inspired by the efficiency of Task Manager, this project strips away the clutter to give you exactly the resource data you need in an easy-to-navigate ASCII dashboard.
+![Python Version](https://img.shields.io/badge/python-3.12%20%7C%203.14-blue?logo=python)
+![Platform](https://img.shields.io/badge/platform-Windows-lightgrey?logo=windows)
+![License](https://img.shields.io/badge/license-Educational-orange)
+![Status](https://img.shields.io/badge/status-v1.0.0--Stable-success)
+
+A lightweight, high-performance terminal dashboard designed for clarity. Inspired by the Windows Task Manager, **FlaminFlamingu** strips away the bloat to deliver pure hardware metrics in a professional ASCII interface.
+
+---
 
 ## 🚀 Purpose
-The goal of this project is to provide a "clean-view" resource output. Unlike heavy GUI applications, **FlaminFlamingu Resource-Monitor** focuses on providing high-readability data for CPU, GPU, Memory, and Storage with zero distractions. It is built to be a modular framework that others can use as inspiration for their own monitoring tools.
+Modern GUI monitors are heavy and resource-intensive. This project provides a **clean-view** resource output with zero distractions. It is built as a modular framework, allowing developers to study the logic or expand it for their own custom hardware monitoring tools.
 
 ## ✨ Key Features
-* **Focused Data:** Only essential metrics for quick navigation.
-* **Hybrid GPU Support:** Intelligent detection for laptops (iGPU vs. dGPU).
-* **Live USB Detection:** Dedicated Orange alert box for hardware events.
-* **Modern Python Ready:** Fully compatible with Python 3.12 t
+* **🎯 Focused Metrics:** Real-time monitoring of CPU, GPU, RAM, and Storage.
+* **💻 Hybrid GPU Support:** Intelligent detection for laptops (Seamless iGPU vs. dGPU tracking).
+* **🔌 Live USB Detector:** Dedicated **Orange Alert Box** for real-time hardware hot-plugging.
+* **🎨 Visual Clarity:** ANSI color-coded dashboard for a professional, "hacker-style" terminal look.
+* **📦 Standalone:** Compiled `.exe` support—no Python installation required for end-users.
 
-## 🛠️ Installation
-Currently, this project runs as a Python script. You will need to install the following dependencies:
+## 📂 Project Structure
+```t
+RESOURCE-MONITOR/
+├── assets/             # Branding assets (icon.ico)
+├── Monitors/           # Specialized logic for each component
+│   ├── cpu_monitor.py  # Thermal & Load tracking
+│   ├── gpu_monitor.py  # Hybrid NVIDIA/AMD logic
+│   ├── usb_monitor.py  # Hardware event polling
+│   ├── memory_monitor.py
+│   └── disk_monitor.py
+├── design.py           # UI Layer & ASCII Layout
+└── main.py             # Execution Engine
 
-```bash
-pip install psutil GPUtil pyadl wmi py-cpuinfo
-Note: A setup script is currently in development to automate this process for a one-click installation experience.
+🛠️ **Installation & Usage**
+[!IMPORTANT]
+Administrative Privileges Required: To access deep hardware sensors (like CPU Temperature), you MUST run your terminal or the .exe as an Administrator. Without elevation, some data will show as "N/A".
 
-I have formatted the entire README.md into a single, clean Markdown block so you can copy and paste the whole thing at once.
+Option A: The Executable (Fastest)
+Navigate to the dist/ folder in this repository.
+
+Right-click FlaminFlaminguMonitor.exe.
+
+Select Run as Administrator.
+
+Option B: Running from Source
+Clone the repository:
+
+Bash
+
+git clone [https://github.com/YourUsername/FlaminFlamingu-Monitor.git](https://github.com/YourUsername/FlaminFlamingu-Monitor.git)
+Install Dependencies:
+
+Bash
+
+pip install psutil GPUtil pyadl wmi py-cpuinfo setuptools
+Launch the application:
+
+Bash
+
+python main.py
+
+Gemini said
+I understand—you want the raw code block so you can copy the entire file contents without any of my extra commentary or formatting getting in the way.
 
 Markdown
+# 🔥 FlaminFlamingu Resource-Monitor
 
-# FlaminFlamingu Resource-Monitor
+![Python Version](https://img.shields.io/badge/python-3.12%20%7C%203.14-blue?logo=python)
+![Platform](https://img.shields.io/badge/platform-Windows-lightgrey?logo=windows)
+![License](https://img.shields.io/badge/license-Educational-orange)
+![Status](https://img.shields.io/badge/status-v1.0.0--Stable-success)
 
-A lightweight, terminal-based system monitoring tool designed for clarity and speed. Inspired by the efficiency of Task Manager, this project strips away the clutter to give you exactly the resource data you need in an easy-to-navigate ASCII dashboard.
+A lightweight, high-performance terminal dashboard designed for clarity. Inspired by the Windows Task Manager, **FlaminFlamingu** strips away the bloat to deliver pure hardware metrics in a professional ASCII interface.
+
+---
 
 ## 🚀 Purpose
-The goal of this project is to provide a "clean-view" resource output. Unlike heavy GUI applications, **FlaminFlamingu Resource-Monitor** focuses on providing high-readability data for CPU, GPU, Memory, and Storage with zero distractions. It is built to be a modular framework that others can use as inspiration for their own monitoring tools.
+Modern GUI monitors are heavy and resource-intensive. This project provides a **clean-view** resource output with zero distractions. It is built as a modular framework, allowing developers to study the logic or expand it for their own custom hardware monitoring tools.
 
-## 🛠️ Installationæ
-Currently, this project runs as a Python script. You will need to install the following dependencies:
+## ✨ Key Features
+* **🎯 Focused Metrics:** Real-time monitoring of CPU, GPU, RAM, and Storage.
+* **💻 Hybrid GPU Support:** Intelligent detection for laptops (Seamless iGPU vs. dGPU tracking).
+* **🔌 Live USB Detector:** Dedicated **Orange Alert Box** for real-time hardware hot-plugging.
+* **🎨 Visual Clarity:** ANSI color-coded dashboard for a professional, "hacker-style" terminal look.
+* **📦 Standalone:** Compiled `.exe` support—no Python installation required for end-users.
 
-```bash
-pip install psutil GPUtil pyadl wmi py-cpuinfo
-Note: A setup script is currently in development to automate this process for a one-click installation experience.
+## 📂 Project Structure
+```text
+RESOURCE-MONITOR/
+├── assets/             # Branding assets (icon.ico)
+├── Monitors/           # Specialized logic for each component
+│   ├── cpu_monitor.py  # Thermal & Load tracking
+│   ├── gpu_monitor.py  # Hybrid NVIDIA/AMD logic
+│   ├── usb_monitor.py  # Hardware event polling
+│   ├── memory_monitor.py
+│   └── disk_monitor.py
+├── design.py           # UI Layer & ASCII Layout
+└── main.py             # Execution Engine
+🛠️ Installation & Usage
+[!IMPORTANT]
+Administrative Privileges Required: To access deep hardware sensors (like CPU Temperature), you MUST run your terminal or the .exe as an Administrator. Without elevation, some data will show as "N/A".
 
-📂 Project Structure
-main.py: The engine that runs the timing loop and coordinates data between monitors and the UI.
+Option A: The Executable (Fastest)
+Navigate to the dist/ folder in this repository.
 
-design.py: The UI layer containing the dashboard layout, ASCII borders, and the full ANSI color palette.
+Right-click FlaminFlaminguMonitor.exe.
 
-Monitors/: A dedicated package containing individual logic scripts for:
+Select Run as Administrator.
 
-cpu_monitor.py
+Option B: Running from Source
+Clone the repository:
 
-gpu_monitor.py
+Bash
+git clone [https://github.com/YourUsername/FlaminFlamingu-Monitor.git](https://github.com/YourUsername/FlaminFlamingu-Monitor.git)
+Install Dependencies:
 
-memory_monitor.py
+Bash
+pip install psutil GPUtil pyadl wmi py-cpuinfo setuptools
+Launch the application:
 
-disk_monitor.py
-
-🚦 How to Use
-Step 1: Open the Command Interface
-Open your terminal of choice. On Windows, press the Win key, type cmd, and press Enter. For a more modern experience, you may also use PowerShell or Windows Terminal.
-
-Step 2: Navigate to the Repository
-You must point the command prompt to the folder where you have saved the script. Copy the folder path from your file explorer and use the cd (Change Directory) command:
-cd C:\Users\YourName\Documents\RESOURCE-MONITOR
-
-Step 3: Initialize the Script
-Once your terminal is mapped to the correct directory, execute the main entry point of the application using the Python interpreter:
-py main.py
-Note: Depending on your system configuration, you may need to use python main.py or python3 main.py.
-
-Step 4: Monitoring
-The dashboard will now initialize. The interface will refresh in real-time. To safely terminate the process and return to the command line, use the keyboard shortcut Ctrl + C.
-
+Bash
+python main.py
 🗺️ Roadmap
-I am actively building toward several major milestones:
+[x] USB Detector: Real-time hardware event polling.
 
-[ ] Automated Setup: A Python or Batch script to handle all library installations.
+[x] Hybrid GPU Support: iGPU and dGPU detection for mobile workstations.
 
-[ ] Application Conversion: Compiling the script into a standalone executable (.exe) for non-Python users.
+[x] Application Conversion: Compiled standalone .exe with custom branding.
 
-[ ] Individual Process Tracking: The ability to check resource usage of specific apps before or while they run.
+[ ] Individual Process Tracking: View resource usage of specific active apps.
 
-[ ] Web Interface: A browser-based version of the dashboard for remote monitoring across a network.
+[ ] Web Interface: Browser-based dashboard for remote network monitoring.
 
 ⚖️ License & Contribution
 This project is shared publicly for inspiration and educational purposes. You are encouraged to study the code and use the logic to build your own unique monitors.
 
-Contribution Policy: At this stage, I am not accepting direct pull requests or changes to the core codebase as I am finishing the primary build. However, feel free to fork the project to experiment with your own versions!
+Contribution Policy: At this stage, I am not accepting direct pull requests as I am finalizing the primary build features. However, feel free to fork the project to experiment with your own versions!
