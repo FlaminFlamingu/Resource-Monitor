@@ -6,10 +6,10 @@ A lightweight, terminal-based system monitoring tool designed for clarity and sp
 The goal of this project is to provide a "clean-view" resource output. Unlike heavy GUI applications, **FlaminFlamingu Resource-Monitor** focuses on providing high-readability data for CPU, GPU, Memory, and Storage with zero distractions. It is built to be a modular framework that others can use as inspiration for their own monitoring tools.
 
 ## ✨ Key Features
-* **Focused Data:** Only shows essential metrics (Load, Temp, VRAM, RAM, and Disk) for quick navigation.
-* **Universal GPU Support:** Integrated logic for both NVIDIA (GPUtil) and AMD (pyadl) hardware.
-* **Modular Architecture:** Hardware logic is separated from the UI, making it easy to study or expand.
-* **Visual Clarity:** Uses a custom-built ANSI color-coded ASCII dashboard for a professional terminal look.
+* **Focused Data:** Only essential metrics for quick navigation.
+* **Hybrid GPU Support:** Intelligent detection for laptops (iGPU vs. dGPU).
+* **Live USB Detection:** Dedicated Orange alert box for hardware events.
+* **Modern Python Ready:** Fully compatible with Python 3.12 t
 
 ## 🛠️ Installation
 Currently, this project runs as a Python script. You will need to install the following dependencies:
@@ -29,17 +29,11 @@ A lightweight, terminal-based system monitoring tool designed for clarity and sp
 ## 🚀 Purpose
 The goal of this project is to provide a "clean-view" resource output. Unlike heavy GUI applications, **FlaminFlamingu Resource-Monitor** focuses on providing high-readability data for CPU, GPU, Memory, and Storage with zero distractions. It is built to be a modular framework that others can use as inspiration for their own monitoring tools.
 
-## ✨ Key Features
-* **Focused Data:** Only shows essential metrics (Load, Temp, VRAM, RAM, and Disk) for quick navigation.
-* **Universal GPU Support:** Integrated logic for both NVIDIA (GPUtil) and AMD (pyadl) hardware.
-* **Modular Architecture:** Hardware logic is separated from the UI, making it easy to study or expand.
-* **Visual Clarity:** Uses a custom-built ANSI color-coded ASCII dashboard for a professional terminal look.
-
-## 🛠️ Installation
+## 🛠️ Installationæ
 Currently, this project runs as a Python script. You will need to install the following dependencies:
 
 ```bash
-pip install | wmi | psutil | GPUtil | pyadl | wmi | py-cpuinfo |
+pip install psutil GPUtil pyadl wmi py-cpuinfo
 Note: A setup script is currently in development to automate this process for a one-click installation experience.
 
 📂 Project Structure
@@ -58,8 +52,6 @@ memory_monitor.py
 disk_monitor.py
 
 🚦 How to Use
-[!IMPORTANT] Administrative Privileges: For the best possible execution and full hardware access (specifically for CPU Temperature sensors), you must run your terminal as an Administrator. Without elevation, some thermal data may return as "N/A".
-
 Step 1: Open the Command Interface
 Open your terminal of choice. On Windows, press the Win key, type cmd, and press Enter. For a more modern experience, you may also use PowerShell or Windows Terminal.
 
@@ -78,13 +70,13 @@ The dashboard will now initialize. The interface will refresh in real-time. To s
 🗺️ Roadmap
 I am actively building toward several major milestones:
 
-[x] USB Detector: Initial integration for hardware polling (Beta).
+[ ] Automated Setup: A Python or Batch script to handle all library installations.
 
-[ ] Fine Adjustments: Improving USB detection speed and drive-letter mapping.
+[ ] Application Conversion: Compiling the script into a standalone executable (.exe) for non-Python users.
 
-[ ] Automated Setup: Script to handle all library installations.
+[ ] Individual Process Tracking: The ability to check resource usage of specific apps before or while they run.
 
-[ ] Application Conversion: Compiling into a standalone .exe.
+[ ] Web Interface: A browser-based version of the dashboard for remote monitoring across a network.
 
 ⚖️ License & Contribution
 This project is shared publicly for inspiration and educational purposes. You are encouraged to study the code and use the logic to build your own unique monitors.
