@@ -1,16 +1,14 @@
 """
 FILE DESCRIPTION:
-This is the main execution engine of the System Monitor. It manages 
-the synchronization between the specialized hardware monitors and 
-the dashboard UI, specifically handling the separation of fixed 
-disk data (Yellow) and USB hot-plug alerts (Orange).
+Main execution engine for FlaminFlamingu Monitor.
+Optimized for standalone .exe compilation.
 """
 
 """
-PROJECT MODULE IMPORTS:
-- design: Renders the ASCII dashboard with Yellow and Orange sections.
-- Monitors: A package containing the CPU, GPU, Memory, Disk, and USB 
-  collection logic.
+BUILD SPECIFICATIONS:
+- Compiler: PyInstaller (via Python Module)
+- Command: python -m PyInstaller --onefile --icon="assets/icon.ico" main.py
+- Branding: icon.ico (Located in /assets/)
 """
 
 """
