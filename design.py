@@ -4,23 +4,16 @@ PURPOSE: Defines the visual identity, branding elements, and global UI styles fo
 
 KEY COMPONENTS:
 1. BRANDING CONSTANTS: Stores the official 'FlaminFlamingu' name and subtitle strings.
-2. THEME ENGINE: Contains the 'COLORS' dictionary which uses a high-contrast Pink & Black palette.
-3. ASCII ART: Provides a raw string representation of the application logo for console output or header styling.
-4. CSS ENGINE: The 'get_main_style()' function generates a dynamic QSS (Qt Style Sheet) string that 
-   PySide6 uses to skin windows, tabs, and labels.
+2. THEME ENGINE: Contains the 'COLORS' dictionary with a high-contrast Pink & Black palette.
+3. ASCII ART: Provides a raw string logo optimized for terminal output and header styling.
+4. CSS ENGINE: Generates a dynamic QSS (Qt Style Sheet) to skin the main window, tabs, and labels.
 """
 
 """
 LIBRARIES USED:
-1. PySide6 (Implicitly targeted): The CSS-style strings in this file are specifically formatted 
-   to be parsed by the PySide6 (Qt for Python) GUI framework.
-
-2. Segoe UI (System Font): Referenced in the QLabel styling to ensure the application 
-   utilizes a modern, clean, and professional typeface on Windows systems.
-
-3. Raw Strings (Python Standard): Utilized (r"") for the ASCII art constant to ensure 
-   backslash characters used in the logo design are not treated as escape sequences by the 
-   Python interpreter.
+1. PySide6: Implicitly targets this framework for style sheet parsing and widget skinning.
+2. Segoe UI: The primary system font for a modern, clean UI appearance.
+3. Raw Strings (r""): Prevents Python from misinterpreting backslashes in the ASCII art logo.
 """
 
 # Branding strings for the application header and window title
