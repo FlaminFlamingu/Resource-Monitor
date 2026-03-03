@@ -1,3 +1,21 @@
+"""
+FILE: main.py
+PURPOSE: Manages the core application lifecycle and hardware monitoring dashboard for FlaminFlamingu.
+
+KEY COMPONENTS:
+1. DashboardTab CLASS: A custom widget that displays real-time CPU, RAM, Disk, and GPU metrics in a styled grid.
+2. FlaminProApp CLASS: The primary QMainWindow that assembles the tabbed interface and handles the refresh timer.
+3. HARDWARE POLLING: Utilizes psutil and GPUtil to fetch live system statistics every 1000ms.
+"""
+
+"""
+LIBRARIES USED:
+1. psutil: Cross-platform library for retrieving information on running processes and system utilization (CPU, memory, disks).
+2. PySide6 (QtWidgets/QtCore): The framework used to build the cross-platform GUI, handle layouts, and manage the update timer.
+3. GPUtil: A specialized helper module for detecting and retrieving NVIDIA GPU status/load.
+4. design (Local): Custom styling module used to apply branding and CSS theme.
+"""
+
 import sys
 import psutil
 from PySide6.QtWidgets import (QApplication, QMainWindow, QTabWidget, 
@@ -5,6 +23,7 @@ from PySide6.QtWidgets import (QApplication, QMainWindow, QTabWidget,
 from PySide6.QtCore import QTimer, Qt
 import design 
 
+# Hardware detection for GPU
 try:
     import GPUtil
     HAS_GPU = True
@@ -14,41 +33,28 @@ except ImportError:
 class DashboardTab(QWidget):
     def __init__(self):
         super().__init__()
+        # Main layout configuration: Anchors content to the top-center
         main_layout = QVBoxLayout()
         main_layout.setAlignment(Qt.AlignTop | Qt.AlignHCenter)
         main_layout.setContentsMargins(0, 40, 0, 0)
-        main_layout.setSpacing(30) # Space between header and cards
+        main_layout.setSpacing(30) 
 
         # --- BRANDING HEADER GROUP ---
         header_widget = QWidget()
         header_layout = QVBoxLayout(header_widget)
         header_layout.setAlignment(Qt.AlignCenter)
-        header_layout.setSpacing(0) # Closes the vertical gap between names
+        header_layout.setSpacing(0) 
         header_layout.setContentsMargins(0, 0, 0, 0)
 
+        # Main brand name label
         self.brand_label = QLabel(design.APP_NAME)
         self.brand_label.setAlignment(Qt.AlignCenter)
-        self.brand_label.setStyleSheet(f"""
-            font-size: 72px; 
-            font-weight: bold; 
-            color: {design.COLORS['primary']};
-            font-family: 'Segoe UI', sans-serif;
-            margin-bottom: 0px;
-        """)
+        self.brand_label.setStyleSheet(f"font-size: 72px; font-weight: bold; color: {design.COLORS['primary']}; margin-bottom: 0px;")
         
+        # Centered subtitle with letter spacing
         self.subtitle_label = QLabel(design.APP_SUBTITLE)
         self.subtitle_label.setAlignment(Qt.AlignCenter)
-        # padding-left: 20px aligns it visually with the 'center' of the text above
-        self.subtitle_label.setStyleSheet(f"""
-            font-size: 16px; 
-            letter-spacing: 12px; 
-            color: #888888; 
-            font-family: 'Segoe UI', sans-serif;
-            font-weight: 300;
-            text-transform: uppercase;
-            padding-left: 20px; 
-            margin-top: -5px;
-        """)
+        self.subtitle_label.setStyleSheet("font-size: 16px; letter-spacing: 12px; color: #888888; padding-left: 20px; margin-top: -5px;")
         
         header_layout.addWidget(self.brand_label)
         header_layout.addWidget(self.subtitle_label)
@@ -72,28 +78,17 @@ class DashboardTab(QWidget):
         self.setLayout(main_layout)
 
     def create_card(self, title, start_val):
+        # Factory method for creating the hardware metric frames
         card = QFrame()
         card.setFixedSize(400, 200) 
-        card.setStyleSheet(f"""
-            QFrame {{ 
-                background-color: {design.COLORS['surface']}; 
-                border: 2px solid {design.COLORS['primary']}; 
-                border-radius: 20px; 
-                padding: 20px; 
-            }}
-        """)
+        card.setStyleSheet(f"QFrame {{ background-color: {design.COLORS['surface']}; border: 2px solid {design.COLORS['primary']}; border-radius: 20px; padding: 20px; }}")
+        
         v_layout = QVBoxLayout()
         t_label = QLabel(title)
         t_label.setStyleSheet("color: #888888; font-size: 12px; border: none; font-weight: bold;")
         
         val_label = QLabel(start_val)
-        val_label.setStyleSheet(f"""
-            color: {design.COLORS['text']}; 
-            font-size: 48px; 
-            font-weight: 600; 
-            font-family: 'Segoe UI';
-            border: none;
-        """)
+        val_label.setStyleSheet(f"color: {design.COLORS['text']}; font-size: 48px; font-weight: 600; border: none;")
         
         card.value_label = val_label
         v_layout.addWidget(t_label)
@@ -103,6 +98,7 @@ class DashboardTab(QWidget):
         return card
 
     def update_dashboard(self):
+        # Polling method to update UI with live system data
         self.cpu_card.value_label.setText(f"{psutil.cpu_percent()}%")
         self.ram_card.value_label.setText(f"{psutil.virtual_memory().percent}%")
         try:
@@ -122,15 +118,21 @@ class DashboardTab(QWidget):
 class FlaminProApp(QMainWindow):
     def __init__(self):
         super().__init__()
+        # Setup main window properties and styles
         self.setWindowTitle(f"{design.APP_NAME} | {design.APP_SUBTITLE}")
         self.resize(1100, 850)
         self.setStyleSheet(design.get_main_style())
+        
+        # Initialize tab system
         self.tabs = QTabWidget()
         self.setCentralWidget(self.tabs)
+        
         self.dashboard = DashboardTab()
         self.tabs.addTab(self.dashboard, "📊 DASHBOARD")
         self.tabs.addTab(QWidget(), "🎮 GPU")
         self.tabs.addTab(QWidget(), "💾 STORAGE")
+        
+        # Global timer to trigger dashboard updates
         self.timer = QTimer()
         self.timer.timeout.connect(self.dashboard.update_dashboard)
         self.timer.start(1000)
