@@ -2,7 +2,7 @@
 title 🔥 FlaminFlamingu Pro: Developer Setup
 color 0E
 echo ======================================================
-echo    FLAMINFLAMINGU RESOURCE-MONITOR : PRO SETUP
+echo    FLAMINFLAMINGU RESOURCE-MONITOR
 echo ======================================================
 echo.
 

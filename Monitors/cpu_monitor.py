@@ -17,8 +17,7 @@ import wmi # Library for accessing Windows-specific system and sensor data
 import psutil # Library for retrieving system-wide CPU utilization percentages
 
 def get_cpu_stats():
-    # Dictionary to store the gathered CPU attributes
-    cpu_info = {}
+    # Dictionary to store the gathered CPU attributescd
     try:
         # Connect to WMI to get the processor's hardware name
         w = wmi.WMI()
