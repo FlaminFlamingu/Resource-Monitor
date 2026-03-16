@@ -1,81 +1,79 @@
 """
-FILE: disk_monitor.py
-PURPOSE: Handles storage partition detection and per-drive usage visualization.
+FILE: cpu_monitor.py
+PURPOSE: Modular component for tracking per-core processor utilization.
 
 KEY COMPONENTS:
-1. DRIVE SCANNER: Identifies all fixed logical disks on the system.
-2. CAPACITY ANALYZER: Calculates GB used vs. total capacity for each partition.
-3. DYNAMIC UI: Generates a labeled container and progress bar for every detected drive.
+1. CORE-LEVEL METRICS: Fetches real-time usage for every logical processor.
+2. DYNAMIC UI GENERATION: Automatically scales the number of progress bars.
+3. SCROLLABLE CONTAINER: Handles high-core-count CPUs.
 """
 
 """
 LIBRARIES USED:
-1. psutil: Disk partition and usage data provider.
-2. PySide6: UI layout and styling components.
+1. psutil: CPU metric collection.
+2. PySide6: UI layout and styling.
 """
 
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QFrame, QLabel, QProgressBar
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QGridLayout, QLabel, QProgressBar, QScrollArea
 from PySide6.QtCore import Qt
 import psutil
 import design
 
-class StorageTab(QWidget):
+# The class name MUST be CPUTab for main.py to find it
+class CPUTab(QWidget):
     def __init__(self):
         super().__init__()
-        # Main layout for the storage slide
+        # Main layout for the CPU slide
         self.layout = QVBoxLayout(self)
-        self.layout.setAlignment(Qt.AlignTop)
         
-        # Initial scan and UI build
-        self.refresh_storage()
-
-    def refresh_storage(self):
-        # Header for the storage analysis page
-        title = QLabel("DETAILED STORAGE ANALYSIS")
-        title.setStyleSheet(f"color: {design.COLORS['primary']}; font-size: 24px; font-weight: bold; margin-bottom: 20px;")
+        # Section Header
+        title = QLabel("CPU CORE ANALYSIS")
+        title.setStyleSheet(f"color: {design.COLORS['primary']}; font-size: 24px; font-weight: bold; margin-bottom: 10px;")
         self.layout.addWidget(title)
 
-        # Iterate through all partitions (Fixed drives only)
-        for part in psutil.disk_partitions():
-            # Filters for physical hard drives and SSDs
-            if 'fixed' in part.opts or part.fstype:
-                try:
-                    usage = psutil.disk_usage(part.mountpoint)
-                    
-                    # Create a styled container for each drive's info
-                    container = QFrame()
-                    container.setStyleSheet(f"background: {design.COLORS['surface']}; border-radius: 10px; margin-bottom: 15px; padding: 10px;")
-                    row = QVBoxLayout(container)
-                    
-                    # Drive Name and Device Path
-                    info = QLabel(f"Drive {part.mountpoint} ({part.device})")
-                    info.setStyleSheet("font-weight: bold; color: white; font-size: 14px;")
-                    
-                    # Custom progress bar using the primary pink color
-                    bar = QProgressBar()
-                    bar.setStyleSheet(f"""
-                        QProgressBar {{ 
-                            border: 1px solid #333; 
-                            height: 20px; 
-                            border-radius: 5px; 
-                            text-align: center; 
-                            color: white; 
-                            background: #111; 
-                        }}
-                        QProgressBar::chunk {{ 
-                            background-color: {design.COLORS['primary']}; 
-                        }}
-                    """)
-                    bar.setValue(int(usage.percent))
-                    
-                    # Text breakdown of GB usage
-                    stats = QLabel(f"Used: {usage.used // (1024**3)} GB / Total: {usage.total // (1024**3)} GB")
-                    stats.setStyleSheet("color: #888; font-size: 11px;")
-                    
-                    row.addWidget(info)
-                    row.addWidget(bar)
-                    row.addWidget(stats)
-                    self.layout.addWidget(container)
-                except Exception:
-                    # Skips drives that are locked or inaccessible
-                    continue
+        # Scroll area setup
+        self.scroll = QScrollArea()
+        self.scroll.setWidgetResizable(True)
+        self.scroll.setStyleSheet("QScrollArea { border: none; background: transparent; }")
+        
+        self.container = QWidget()
+        self.grid = QGridLayout(self.container)
+        self.scroll.setWidget(self.container)
+        self.layout.addWidget(self.scroll)
+
+        # List to keep track of progress bar objects
+        self.core_bars = []
+        self.setup_cores()
+
+    def setup_cores(self):
+        # Create bars for every core
+        cores = psutil.cpu_percent(percpu=True)
+        for i, usage in enumerate(cores):
+            label = QLabel(f"CORE {i}")
+            label.setStyleSheet("color: white; font-weight: bold;")
+            
+            bar = QProgressBar()
+            bar.setStyleSheet(f"""
+                QProgressBar {{ 
+                    border: 1px solid #333; 
+                    border-radius: 5px; 
+                    text-align: center; 
+                    color: white; 
+                    background: #111; 
+                }}
+                QProgressBar::chunk {{ 
+                    background-color: {design.COLORS['primary']}; 
+                }}
+            """)
+            bar.setValue(int(usage))
+            
+            self.grid.addWidget(label, i, 0)
+            self.grid.addWidget(bar, i, 1)
+            self.core_bars.append(bar)
+
+    def update_cpu_details(self):
+        # Polled by main.py every 1000ms
+        cores = psutil.cpu_percent(percpu=True)
+        for i, usage in enumerate(cores):
+            if i < len(self.core_bars):
+                self.core_bars[i].setValue(int(usage))
