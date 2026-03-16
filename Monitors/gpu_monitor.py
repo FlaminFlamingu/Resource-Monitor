@@ -1,83 +1,80 @@
 """
-FILE DESCRIPTION:
-This module is responsible for detecting and monitoring Graphics 
-Processing Units (GPUs). It is optimized for laptops to detect both 
-Integrated (iGPU) and Dedicated (dGPU) hardware, ensuring thermal 
-and load data is gathered for all active graphics controllers.
+FILE: gpu_monitor.py
+PURPOSE: Monitors dedicated NVIDIA graphics hardware performance and vitals.
+
+KEY COMPONENTS:
+1. THERMAL TRACKING: Reports real-time core temperature in Celsius.
+2. LOAD MONITOR: Tracks GPU processing utilization percentage.
+3. VRAM ANALYZER: Reports video memory allocation and total capacity.
 """
 
 """
-LIBRARY DESCRIPTIONS:
-- GPUtil: Used for NVIDIA cards. Note: Requires 'setuptools' on Python 3.12+.
-- pyadl: The Python AMD Display Library, used for accessing AMD GPU metrics.
-- wmi: Windows Management Instrumentation, used to identify hardware names 
-        and base specifications from the system registry.
+LIBRARIES USED:
+1. GPUtil: Interface for NVIDIA Management Library (NVML).
+2. PySide6: UI labels and layout management.
 """
 
-# BACKGROUND DEPENDENCY: setuptools (Required for GPUtil compatibility on Python 3.12+)
-import GPUtil  # Interface for NVIDIA GPU monitoring
-import wmi     # Interface for Windows system hardware identification
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QFrame
+import design
 
-# --- DRIVER VALIDATION ---
+# Global check to see if the required library is installed
 try:
-    from pyadl import ADLManager
-    AMD_DRIVER_FOUND = True
-except Exception:
-    AMD_DRIVER_FOUND = False
+    import GPUtil
+    HAS_GPU_LIB = True
+except ImportError:
+    HAS_GPU_LIB = False
 
-def get_gpu_stats():
-    # Primary dictionary to store and sync data from multiple hardware sources
-    master_gpus = {}
+class GPUTab(QWidget):
+    def __init__(self):
+        super().__init__()
+        # Main layout for the GPU slide
+        self.layout = QVBoxLayout(self)
+        
+        # Header for the GPU analysis page
+        title = QLabel("GPU HARDWARE ANALYSIS")
+        title.setStyleSheet(f"color: {design.COLORS['primary']}; font-size: 24px; font-weight: bold; margin-bottom: 20px;")
+        self.layout.addWidget(title)
 
-    # --- SECTION 1: HARDWARE IDENTIFICATION (WMI) ---
-    try:
-        w = wmi.WMI()
-        for gpu in w.Win32_VideoController():
-            name = gpu.Name
-            
-            # Identify if the card is Integrated or Dedicated
-            # Most laptops use Intel or AMD Radeon Graphics for integrated chips
-            is_integrated = any(term in name for term in ["Intel", "Integrated", "UHD", "Iris"])
-            gpu_type = " (iGPU)" if is_integrated else " (dGPU)"
-            
-            # Convert VRAM from bytes to Megabytes (MB)
-            vram_mb = abs(int(int(gpu.AdapterRAM or 0) / (1024**2)))
-            
-            master_gpus[name] = {
-                "name": name + gpu_type, # Labeling the type for the UI
-                "load": 0.0,
-                "memory_total": vram_mb,
-                "memory_used": "N/A",
-                "temp": "N/A",
-                "is_integrated": is_integrated
-            }
-    except Exception:
-        pass
+        # Create a container card for the GPU stats
+        self.card = QFrame()
+        self.card.setStyleSheet(f"background: {design.COLORS['surface']}; border-radius: 15px; padding: 20px;")
+        self.card_layout = QVBoxLayout(self.card)
+        
+        # Labels for different metrics
+        self.model_label = QLabel("Detecting GPU...")
+        self.model_label.setStyleSheet("font-size: 18px; font-weight: bold; color: white;")
+        
+        self.load_label = QLabel("Load: --%")
+        self.temp_label = QLabel("Temp: --°C")
+        self.mem_label = QLabel("VRAM: -- / -- MB")
+        
+        # Style the metric labels
+        for lbl in [self.load_label, self.temp_label, self.mem_label]:
+            lbl.setStyleSheet(f"color: {design.COLORS['text']}; font-size: 16px; margin-top: 5px;")
 
-    # --- SECTION 2: AMD PERFORMANCE DATA ---
-    if AMD_DRIVER_FOUND:
+        self.card_layout.addWidget(self.model_label)
+        self.card_layout.addWidget(self.load_label)
+        self.card_layout.addWidget(self.temp_label)
+        self.card_layout.addWidget(self.mem_label)
+        
+        self.layout.addWidget(self.card)
+        self.layout.addStretch()
+
+    def update_gpu(self):
+        # Polled by main.py every 1000ms
+        if not HAS_GPU_LIB:
+            self.model_label.setText("GPUtil Library Missing")
+            return
+
         try:
-            devices = ADLManager.getInstance().getDevices()
-            for dev in devices:
-                raw_name = dev.adapterName.decode('utf-8') if isinstance(dev.adapterName, bytes) else dev.adapterName
-                for m_name in master_gpus:
-                    if raw_name in m_name or m_name in raw_name:
-                        master_gpus[m_name]["load"] = float(dev.getCurrentUsage() or 0.0)
-                        master_gpus[m_name]["temp"] = dev.getCurrentTemperature()
+            gpus = GPUtil.getGPUs()
+            if gpus:
+                gpu = gpus[0] # Monitors the primary card
+                self.model_label.setText(f"🎮 {gpu.name}")
+                self.load_label.setText(f"Load: {gpu.load * 100:.1f}%")
+                self.temp_label.setText(f"Temperature: {gpu.temperature}°C")
+                self.mem_label.setText(f"VRAM: {int(gpu.memoryUsed)}MB / {int(gpu.memoryTotal)}MB")
+            else:
+                self.model_label.setText("No NVIDIA GPU Detected")
         except Exception:
-            pass
-
-    # --- SECTION 3: NVIDIA PERFORMANCE DATA ---
-    try:
-        gpus = GPUtil.getGPUs()
-        for gpu in gpus:
-            for m_name in master_gpus:
-                # NVIDIA cards are almost always dedicated (dGPU)
-                if gpu.name in m_name or m_name in gpu.name:
-                    master_gpus[m_name]["load"] = gpu.load * 100
-                    master_gpus[m_name]["temp"] = gpu.temperature
-                    master_gpus[m_name]["memory_used"] = int(gpu.memoryUsed)
-    except Exception:
-        pass
-
-    return list(master_gpus.values())
+            self.model_label.setText("GPU Data Unavailable")

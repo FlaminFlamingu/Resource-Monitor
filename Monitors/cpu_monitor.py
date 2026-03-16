@@ -1,48 +1,81 @@
 """
-FILE DESCRIPTION:
-This module retrieves real-time CPU statistics. It captures the 
-official processor name, monitors the current usage load as a 
-percentage, and attempts to pull thermal data to track the CPU temperature.
+FILE: disk_monitor.py
+PURPOSE: Handles storage partition detection and per-drive usage visualization.
+
+KEY COMPONENTS:
+1. DRIVE SCANNER: Identifies all fixed logical disks on the system.
+2. CAPACITY ANALYZER: Calculates GB used vs. total capacity for each partition.
+3. DYNAMIC UI: Generates a labeled container and progress bar for every detected drive.
 """
 
 """
-LIBRARY DESCRIPTIONS:
-- wmi: Windows Management Instrumentation is used to access deep system 
-       information like the processor's hardware name and thermal zone sensors.
-- psutil: A library used here to calculate the current CPU utilization 
-          load across all logical cores.
+LIBRARIES USED:
+1. psutil: Disk partition and usage data provider.
+2. PySide6: UI layout and styling components.
 """
 
-import wmi # Library for accessing Windows-specific system and sensor data
-import psutil # Library for retrieving system-wide CPU utilization percentages
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QFrame, QLabel, QProgressBar
+from PySide6.QtCore import Qt
+import psutil
+import design
 
-def get_cpu_stats():
-    # Dictionary to store the gathered CPU attributescd
-    try:
-        # Connect to WMI to get the processor's hardware name
-        w = wmi.WMI()
-        for processor in w.Win32_Processor():
-            cpu_info['name'] = processor.Name.strip()
-
-        # Get the current CPU load (non-blocking interval for real-time updates)
-        cpu_info['load'] = psutil.cpu_percent(interval=None)
-
-        # Access the WMI thermal namespace to read temperature sensors
-        w_temp = wmi.WMI(namespace="root\\wmi")
-        temp_data = w_temp.MSAcpi_ThermalZoneTemperature()
+class StorageTab(QWidget):
+    def __init__(self):
+        super().__init__()
+        # Main layout for the storage slide
+        self.layout = QVBoxLayout(self)
+        self.layout.setAlignment(Qt.AlignTop)
         
-        if temp_data:
-            # WMI returns temperature in tenths of Kelvins; converting to Celsius
-            raw_temp = temp_data[0].CurrentTemperature
-            cpu_info['temp'] = round((raw_temp / 10.0) - 273.15, 1)
-        else:
-            cpu_info['temp'] = "N/A"
+        # Initial scan and UI build
+        self.refresh_storage()
 
-    except Exception:
-        # Fallback values in case of permission issues or missing sensors
-        cpu_info['temp'] = "N/A"
-        if 'name' not in cpu_info:
-            cpu_info['name'] = "Unknown Processor"
-        cpu_info['load'] = psutil.cpu_percent(interval=None)
+    def refresh_storage(self):
+        # Header for the storage analysis page
+        title = QLabel("DETAILED STORAGE ANALYSIS")
+        title.setStyleSheet(f"color: {design.COLORS['primary']}; font-size: 24px; font-weight: bold; margin-bottom: 20px;")
+        self.layout.addWidget(title)
 
-    return cpu_info
+        # Iterate through all partitions (Fixed drives only)
+        for part in psutil.disk_partitions():
+            # Filters for physical hard drives and SSDs
+            if 'fixed' in part.opts or part.fstype:
+                try:
+                    usage = psutil.disk_usage(part.mountpoint)
+                    
+                    # Create a styled container for each drive's info
+                    container = QFrame()
+                    container.setStyleSheet(f"background: {design.COLORS['surface']}; border-radius: 10px; margin-bottom: 15px; padding: 10px;")
+                    row = QVBoxLayout(container)
+                    
+                    # Drive Name and Device Path
+                    info = QLabel(f"Drive {part.mountpoint} ({part.device})")
+                    info.setStyleSheet("font-weight: bold; color: white; font-size: 14px;")
+                    
+                    # Custom progress bar using the primary pink color
+                    bar = QProgressBar()
+                    bar.setStyleSheet(f"""
+                        QProgressBar {{ 
+                            border: 1px solid #333; 
+                            height: 20px; 
+                            border-radius: 5px; 
+                            text-align: center; 
+                            color: white; 
+                            background: #111; 
+                        }}
+                        QProgressBar::chunk {{ 
+                            background-color: {design.COLORS['primary']}; 
+                        }}
+                    """)
+                    bar.setValue(int(usage.percent))
+                    
+                    # Text breakdown of GB usage
+                    stats = QLabel(f"Used: {usage.used // (1024**3)} GB / Total: {usage.total // (1024**3)} GB")
+                    stats.setStyleSheet("color: #888; font-size: 11px;")
+                    
+                    row.addWidget(info)
+                    row.addWidget(bar)
+                    row.addWidget(stats)
+                    self.layout.addWidget(container)
+                except Exception:
+                    # Skips drives that are locked or inaccessible
+                    continue
